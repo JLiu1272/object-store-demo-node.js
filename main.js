@@ -15,6 +15,7 @@ http.createServer(function (req, res) {
   }
 
   if(req.url == "/get"){  
+    //Change the file you want to get, (i.e Jellyfish.jpg)
     meat.run_main("GET","", res, "Jellyfish.jpg");
   }
 
