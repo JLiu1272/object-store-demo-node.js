@@ -1,0 +1,9 @@
+---
+applications:
+- name: jennifer-nodejs
+  command: node server.js
+  memory: 256M
+  instances: 1
+  buildpack: nodejs_buildpack
+  services:
+    []

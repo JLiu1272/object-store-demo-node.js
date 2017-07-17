@@ -25,7 +25,7 @@ var options_auth = {
      Status (number)
         A success status code. It could be 200, 202 etc...   
 */
-exports.run = function (options, status){
+exports.run = function (options, status, url_s, resp){
   function callback(error, response, body){
     if(!error && response.statusCode == status){
       console.log("--------------------------------------------------------------");
@@ -35,6 +35,7 @@ exports.run = function (options, status){
       console.log(body + "\n");
       console.log("Response Header: \n");
       console.log(response.headers);
+      resp({'header': response.headers, 'body': body});
     }
   }
   request(options, callback);
@@ -46,7 +47,7 @@ exports.run = function (options, status){
    Due to the nature of Node.js (Async, Non-Blocking Design), you must 
    do the GET/PUT/DELETE/... etc request within the callback function. 
 */
-exports.run_main = function (method, file, res,file_name){
+exports.run_main = function (method, url_s, file, result){
     function callback(error, response, body) {
       if (!error && response.statusCode == 200) {
         console.log("You are authenticated");
@@ -64,17 +65,21 @@ exports.run_main = function (method, file, res,file_name){
               only list the containers within the account
          */
         if (method == "GET"){
-            var url_s = "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name;
             var get_options = {
               method: "GET",
-              url: "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name,
+              url: url_s,
               headers: { 
                 "X-Auth-Token": auth_token
               }
             }
 
+            exports.run(get_options, 200, url_s, function(res){
+              //Doing this to combat the async nature of node.js 
+              result({'header': res.header, 'body': res.body});
+            });
+
             //This will pip the image to the response 
-            request(get_options).pipe(res);
+            //request(get_options).pipe(res);
         }  
 
         /*
@@ -85,7 +90,7 @@ exports.run_main = function (method, file, res,file_name){
         */
 
         if (method == "PUT"){
-            var url_s = "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name;
+            //var url_s = "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name;
             var options_put = {
               method: "PUT",
               url: url_s,
@@ -100,7 +105,6 @@ exports.run_main = function (method, file, res,file_name){
                 console.log("--------------------------------------------------------");
                 console.log("File successfully uploaded to " + url_s + "\n");
             })); 
-            //__dirname + '/volkswagen-1.4MB.jpg'
         }
 
 
@@ -130,7 +134,9 @@ exports.run_main = function (method, file, res,file_name){
                 "X-Object-Met-aModel": "x3"
               }
             }
-            exports.run(post_options, 202);
+            exports.run(post_options, 202, url_s, function(res){
+              console.log(res);
+            });
         }
 
         /*
@@ -146,17 +152,18 @@ exports.run_main = function (method, file, res,file_name){
         if (method == "HEAD"){
           var head_options = {
             method: "HEAD",
-            url: "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name,
+            url: url_s,
             headers: {
               "X-Auth-Token": auth_token
             }
           }
-          exports.run(head_options, 200);
+          console.log("Passed here");
+          exports.run(head_options, 200, url_s, function(res){
+              result({'header': res.header, 'body': res.body});
+          });
         }
       }
     }
 
     request(options_auth, callback);
 }
-
-//run_main("GET");

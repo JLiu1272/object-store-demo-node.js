@@ -1,0 +1,22 @@
+<html>
+   <head>
+      <style>
+		#header {
+		    width:800px;
+		    padding:5px;
+		}
+	   </style>
+   </head>
+   <body>
+   	  <h1>Object: <%= object_title %></h1>
+	  <p>Header Information about Object</p>
+	  <div id="header" width="100px"> 
+	  	<% for(var i=0; i<header.length; i++) { %>
+		    <p><strong><%= header_title[i] %> :</strong> <%= header[i] %></p>
+        <% } %>
+	  </div>
+	  <div id="image_cont">
+	  	<img src="<%= content %>">
+	  </div>
+   </body>
+</html>

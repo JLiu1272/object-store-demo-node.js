@@ -1,0 +1,12 @@
+{
+	//User Configuration 
+	"api_conf":{
+		"server": "hln2329p", 
+		"port": "8080", 
+		"version": "v1", 
+		"account": "AUTH_companyA", 
+		"container": "folder1", 
+		"object": ""
+	}	
+
+}
