@@ -15,7 +15,7 @@
 		    <p><strong><%= header_title[i] %> :</strong> <%= header[i] %></p>
         <% } %>
 	  </div>
-	  <form action="http://127.0.0.1:8081/head" method="GET">
+	  <form action="/head" method="GET">
 	  	<select name="container">
 	      <% for(var i=0; i<token.length; i++) { %>
 		     <option value="<%= token[i] %>"><%= token[i] %></option>
