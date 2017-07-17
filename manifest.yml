@@ -1,7 +1,7 @@
 ---
 applications:
 - name: jennifer-nodejs
-  command: node server.js
+  command: node main.js
   memory: 256M
   instances: 1
   buildpack: nodejs_buildpack
