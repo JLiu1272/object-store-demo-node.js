@@ -82,29 +82,20 @@ exports.run_main = function (method, url_s, file, result){
             //request(get_options).pipe(res);
         }  
 
-        /*
-          PUT Function differs when used in different levels (Account, Container, Object)
-          Account - Request is not available in Account
-          Containers - Create container
-          Objects - Create or replace object
-        */
-
-        if (method == "PUT"){
-            //var url_s = "http://hln2329p:8080/v1/AUTH_companyA/folder1/" + file_name;
-            var options_put = {
-              method: "PUT",
-              url: url_s,
-              headers: {
-                "X-Auth-Token": (response.headers['x-auth-token']).toString(),
-                "Content-Type": "image/jpeg"
-              }
+        if (method == "DELETE"){
+          var options_delete = {
+            method: "DELETE",
+            url: url_s,
+            headers: {
+              "X-Auth-Token": (response.headers['x-auth-token']).toString(),
             }
-            fs.createReadStream(file).pipe(request.put(options_put, function(err, response, body) {
-                console.log("---------------------------------------------------------");
-                console.log("\nSending a PUT Request\n");
-                console.log("--------------------------------------------------------");
-                console.log("File successfully uploaded to " + url_s + "\n");
-            })); 
+          }
+
+          exports.run(get_options, 200, url_s, function(res){
+            //Doing this to combat the async nature of node.js 
+            result({'header': res.header, 'body': res.body});
+          });
+
         }
 
 
@@ -165,5 +156,42 @@ exports.run_main = function (method, url_s, file, result){
       }
     }
 
+    request(options_auth, callback);
+}
+
+/* 
+ * Put has its own function because it requires
+ * a lot more parameter so it will be easier 
+ * to create another function to do it 
+ */
+exports.run_main_put = function (url_s, file, type, result){
+    function callback(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log("You are authenticated");
+        var auth_token = response.headers['x-auth-token'].toString();
+        console.log("Auth Token: " + JSON.stringify(response.headers['x-auth-token']));
+
+        /*
+          PUT Function differs when used in different levels (Account, Container, Object)
+          Account - Request is not available in Account
+          Containers - Create container
+          Objects - Create or replace object
+        */
+        var options_put = {
+          method: "PUT",
+          url: url_s,
+          headers: {
+            "X-Auth-Token": (response.headers['x-auth-token']).toString(),
+            "Content-Type": type
+          }
+        }
+        fs.createReadStream(file).pipe(request.put(options_put, function(err, response, body) {
+            console.log("---------------------------------------------------------");
+            console.log("\nSending a PUT Request\n");
+            console.log("--------------------------------------------------------");
+            console.log("File successfully uploaded to " + url_s + "\n");
+        })); 
+      }      
+    }  
     request(options_auth, callback);
 }

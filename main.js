@@ -43,37 +43,7 @@ function gen_url(object){
   return url;
 }
 
-var header_title = [
-  "content-type",
-  "x-container-object-count",
-  "accept-ranges",
-  "x-storage-policy",
-  "x-container-read",
-  "x-container-bytes-used",
-  "x-timestamp",
-  "content-type",
-  "x-trans-id",
-  "date",
-  "connection"
-];
-
-var header_title2 = [
-  "content-type",
-  "x-container-object-count",
-  "accept-ranges",
-  "x-storage-policy",
-  "x-container-read",
-  "x-container-bytes-used",
-  "x-timestamp",
-  "content-type",
-  "x-trans-id",
-  "date",
-  "connection", 
-  "last-modified",
-  "x-object-meta-brand",
-  "x-object-meta-model"
-];
-
+var header_title = [];
 
 //Perform GET Function 
 app.get("/", function (req, res) {
@@ -87,19 +57,12 @@ app.get("/", function (req, res) {
         return;
       }
       var header_raw = JSON.stringify(rep.header, null, 2);
-      var header = [
-        rep.header["content-type"],
-        rep.header["x-container-object-count"],
-        rep.header["accept-ranges"],
-        rep.header["x-storage-policy"],
-        rep.header["x-container-read"],
-        rep.header["x-container-bytes-used"],
-        rep.header["x-timestamp"],
-        rep.header["content-type"],
-        rep.header["x-trans-id"],
-        rep.header["date"],
-        rep.header["connection"]
-      ];
+      var header = [];
+
+      for(var key in rep.header){
+        header.push(rep.header[key]);
+        header_title.push(key);
+      }
       var token = rep.body.split("\n");
 
       var renderedHtml = ejs.render(content, {header_title: header_title, header: header, token: token, header_container: ""});
@@ -118,9 +81,9 @@ app.post('/put', function (req, res){
   var form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
       var oldpath = files.filetoupload.path;
-      console.log(oldpath);
+      var file_type = files.filetoupload.type;
       url = gen_url(files.filetoupload.name);
-      meat.run_main("PUT", url, oldpath, function(rep){});
+      meat.run_main_put(url, oldpath, file_type, function(rep){});
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.write('<p>File successfully uploaded to ' +
       '<a href="' + url+ '">' + url + '</a>' + '</p>');
@@ -129,7 +92,7 @@ app.post('/put', function (req, res){
 
 });
 
-/* 
+/*
  * For each object, it has a head function, 
  * which allows you to view all the metadata within
  * it
@@ -137,7 +100,7 @@ app.post('/put', function (req, res){
 
 app.get('/head', function (req, res) {
   url = gen_url(req.query.container);
-  meat.run_main("HEAD", url, "", function(rep){
+  meat.run_main("GET", url, "", function(rep){
     fs.readFile('templates/container.html', 'utf-8', function(err, content) {
       if (err) {
         res.end('error occurred');
@@ -145,39 +108,48 @@ app.get('/head', function (req, res) {
       }
 
       var header_raw = JSON.stringify(rep.header, null, 2);
-      console.log(header_raw);
-      var header = [
-        rep.header["content-type"],
-        rep.header["x-container-object-count"],
-        rep.header["accept-ranges"],
-        rep.header["x-storage-policy"],
-        rep.header["x-container-read"],
-        rep.header["x-container-bytes-used"],
-        rep.header["x-timestamp"],
-        rep.header["content-type"],
-        rep.header["x-trans-id"],
-        rep.header["date"],
-        rep.header["connection"],
-        rep.header["last-modified"], 
-        rep.header["x-object-meta-brand"],
-        rep.header["x-object-meta-model"]
-      ];
+      var header = [];
+      for(var key in rep.header){
+        header.push(rep.header[key]);
+        header_title.push(key);
+      }
       var token = rep.body.split("\n");
 
-      var renderedHtml = ejs.render(content, {header_title: header_title2, header: header, object_title: req.query.container, content: url});
-      res.end(renderedHtml);
+      //If content is an image show it as an image 
+      if((rep.header["content-type"]).match('image')){
+        var renderedHtml = ejs.render(content, {header_title: header_title, header: header, object_title: req.query.container, img_content: url, text_cont: ""});
+        res.end(renderedHtml);
+      }
+      //If content is a text file, render it as text 
+      else if((rep.header["content-type"]).match('text')){
+        console.log(rep.body);
+        var renderedHtml = ejs.render(content, {header_title: header_title, header: header, object_title: req.query.container, text_cont: rep.body, url: url, img_content: ""});
+        res.end(renderedHtml);
+      }
+      //If file is none of the described type, return file cannot be 
+      //opened
+      else{
+        var text_cont = "This file is either an application or a directory";
+        var renderedHtml = ejs.render(content, {header_title: header_title, header: header, object_title: req.query.container, text_cont: text_cont, img_content: ""});
+        res.end(renderedHtml);
+      }
     });
   });
 });
 
+
+
+
+
 /*
  * Rendering the app server 
  */
-var server = app.listen(process.env.PORT, function () {
+var server = app.listen(process.env.PORT || 8081, function () {
    var host = server.address().address
    var port = server.address().port
+   process.env.NODE_ENV = 'production';
    console.log("Example app listening at http://%s:%s", host, port)
 
 });
 
-console.log('Server running at http://127.0.0.1:8081/');
+console.log('Server running at https://jennifer-nodejs.spi-pcf.oocl.com/');
