@@ -9,6 +9,11 @@ var fs = require('fs');
 
 *********************************************************************/
 //Authentication
+/* 
+ * You can auto generate a url based on the values 
+ * inside config/production.json. An example of such
+ * can be seen in the main.js 
+ */
 var options_auth = {
   url: 'http://hln2329p:8080/auth/v1.0',
   headers: {
@@ -78,6 +83,9 @@ exports.run_main = function (method, url_s, file, result){
             //request(get_options).pipe(res);
         }  
 
+        /* 
+         * Delete an object/container
+         */
         if (method == "DELETE"){
           var options_delete = {
             method: "DELETE",

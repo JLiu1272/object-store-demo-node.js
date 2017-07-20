@@ -26,7 +26,6 @@
 	    </select>
 	    <input type="submit" value="Submit">
 	  </form>
-	  <!-- enctype="multipart/form-data" --> 
 	  <form action="/put" method="POST" enctype="multipart/form-data">
 	  	<h2>Upload Content</h2>
 	  	<p>Post Metadata Here. When you are posting, you must adhere to the form
@@ -45,12 +44,18 @@
 		</div>
 	  </form>
 	  <script type="text/javascript">
+
+	  	/* 
+	  	 * Allows user to add additional fields for
+	  	 * posting metadata 
+	  	 */
 	  	function addFields(){
 	  		var meta_cont = document.getElementById("metadata");
 	  		var input1 = document.createElement("input");
 	  		var input2 = document.createElement("input");
 	  		//Get the number of elements in the metadata div 
 	  		var num = document.getElementById("metadata").childElementCount;
+	  		//Take out the <br> tags 
 	  		var num = num - (num/3);
 
 	  		input1.type = "text";

@@ -10,14 +10,9 @@ var express = require('express');
 var formidable = require('formidable');
 var bodyParser = require('body-parser');
 
-var server = config.get('api_conf.server');
-var port = config.get('api_conf.port');
-var version = config.get('api_conf.version');
-var account = config.get('api_conf.account');
-
 var app = express();
 
-//Allow data transfer with post  
+//Allow data transfer with post - multipart/form-data  
 var bodyParser = require('body-parser')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
@@ -32,7 +27,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 *********************************************************************/
 
-//Generate url based on config file info 
+/*
+ * Generate url based on config file info
+ */ 
 function gen_url(object){
   var server = config.get('api_conf.server');
   var port = config.get('api_conf.port');
@@ -40,6 +37,8 @@ function gen_url(object){
   var account = config.get('api_conf.account');
 
   url = "http://" + server + ":" + port + "/" + version + "/" + account 
+  //Check if the container/object exist, if they exist 
+  //concatenate it to the url variable 
   if(config.has('api_conf.container')){
      url += "/" + config.get('api_conf.container'); 
   } 
@@ -66,10 +65,14 @@ app.get("/", function (req, res) {
       var header = [];
       var header_title = [];
 
+      //Loop through metadata of this file 
+      //Add the keys to header_title
+      //Add the values to header 
       for(var key in rep.header){
         header.push(rep.header[key]);
         header_title.push(key);
       }
+
       var token = rep.body.split("\n");
 
       var renderedHtml = ejs.render(content, {header_title: header_title, header: header, token: token, header_container: ""});
@@ -87,7 +90,11 @@ app.get("/", function (req, res) {
 app.post('/put', function (req, res){
   var form = new formidable.IncomingForm();
   form.parse(req, function (err, fields, files) {
+      //Grab the local path of the file uploaded
       var oldpath = files.filetoupload.path;
+      //You must include the type of the file 
+      //when you are putting things into object 
+      //store 
       var file_type = files.filetoupload.type;
       url = gen_url(files.filetoupload.name);
     
@@ -104,11 +111,15 @@ app.post('/put', function (req, res){
       var keys = Object.keys(fields);
 
       for(var i=0; i < keys.length; i++){
-        //i is an even number
+        //i is an even number. If even number, 
+        //then it is considered the value 
+        //for the metadata dictionary
         if(i % 2 == 0){
           meta_key.push(metadata_val[i]);
         }
-        //i is not an even number
+        //i is not an even number. If not 
+        //an even number, then it is considered
+        //the key for the metadata dictionary
         else{
           meta_value.push(metadata_val[i]);
         }
@@ -195,18 +206,12 @@ app.get("/delete", function(req, res){
 });
 
 
-
-
-
-
 /*
  * Rendering the app server 
  */
 var server = app.listen(process.env.PORT || 8081, function () {
    var host = server.address().address
    var port = server.address().port
-   console.log("Example app listening at http://%s:%s", host, port)
-
 });
 
 console.log('Server running at https://jennifer-nodejs.spi-pcf.oocl.com/');
