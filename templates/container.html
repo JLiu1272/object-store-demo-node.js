@@ -8,22 +8,25 @@
 	   </style>
    </head>
    <body>
-   	  <h1>Object: <%= object_title %></h1>
-	  <p>Header Information about Object</p>
-	  <div id="header" width="100px"> 
-	  	<% for(var i=0; i<header.length; i++) { %>
-		    <p><strong><%= header_title[i] %> :</strong> <%= header[i] %></p>
-        <% } %>
-	  </div>
-	  <h2>Content</h2>
-	  <div id="image_cont" width="100%" height="600px">
-	  	<img src="<%= img_content %>">
-	  </div>
-	  <div id="text_cont">
-		<% if (locals.url) { %>
-		  <p>View Text in Original Format: <a href="<%= url %>"><%= url %></a></p>
-		<% } %>
-	  	<%= text_cont %>
-	  </div>
+   	  <form action="/delete" method="get">	
+	   	  <h1>Object: <%= object_title %></h1>
+		  <p>Header Information about Object</p>
+		  <div id="header" width="100px"> 
+		  	<% for(var i=0; i<header.length; i++) { %>
+			    <p><strong><%= header_title[i] %> :</strong> <%= header[i] %></p>
+	        <% } %>
+		  </div>
+	  	  <input type="submit" value="Delete">
+		  <h2>Content</h2>
+		  <div id="image_cont" width="100%" height="600px">
+		  	<img src="<%= img_content %>">
+		  </div>
+		  <div id="text_cont">
+			<% if (locals.url) { %>
+			  <p>View Text in Original Format: <a href="<%= url %>" download><%= url %></a></p>
+			<% } %>
+		  	<%= text_cont %>
+		  </div>
+	  </form>
    </body>
 </html>

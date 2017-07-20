@@ -5,6 +5,9 @@
 		    width:800px;
 		    padding:5px;
 		}
+		.padding{
+			padding:10px;
+		}
 	   </style>
    </head>
    <body>
@@ -23,9 +26,47 @@
 	    </select>
 	    <input type="submit" value="Submit">
 	  </form>
+	  <!-- enctype="multipart/form-data" --> 
 	  <form action="/put" method="POST" enctype="multipart/form-data">
-		<input type="file" name="filetoupload">
-		<input type="submit">
+	  	<h2>Upload Content</h2>
+	  	<p>Post Metadata Here</p>
+	  	<div class="padding" name="metadata" id="metadata">
+	  		<input type="text" name="meta1a1" placeholder="X-Object-Meta-{name}">
+	  		<input type="text" name="meta2a2" placeholder="{value}">
+	  		<br/>
+	  	</div>
+	  	<input type="button" onclick="addFields()" value="Add Fields">
+	  	<br/>
+	  	<div class="file_upload padding">
+			<input type="file" name="filetoupload">
+			<input type="submit">
+		</div>
 	  </form>
+	  <script type="text/javascript">
+	  	function addFields(){
+	  		var meta_cont = document.getElementById("metadata");
+	  		var input1 = document.createElement("input");
+	  		var input2 = document.createElement("input");
+	  		//Get the number of elements in the metadata div 
+	  		var num = document.getElementById("metadata").childElementCount;
+	  		var num = num - (num/3);
+
+	  		input1.type = "text";
+	  		input1.name = "meta1a" + (num + 1);
+	  		input1.class = "padding";
+	  		input1.placeholder = "X-Object-Meta-{name}";
+
+	  		input2.type = "text";
+	  		input2.name = "meta2a" + (num + 2);
+	  		input2.class = "padding";
+	  		input2.placeholder = "{value}";
+	  		//Append input into container
+	  		meta_cont.appendChild(input1);
+	  		meta_cont.appendChild(input2);
+	  		//Append a line break 
+	  		meta_cont.appendChild(document.createElement("br"));
+	  	}
+
+	  </script>
    </body>
 </html>

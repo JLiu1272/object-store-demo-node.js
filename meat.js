@@ -31,10 +31,6 @@ exports.run = function (options, status, url_s, resp){
       console.log("--------------------------------------------------------------");
       console.log("\nSending an " + options.method + " request: \n");
       console.log("--------------------------------------------------------------");
-      console.log("Body is returning (sometimes body can be empty): \n");
-      console.log(body + "\n");
-      console.log("Response Header: \n");
-      console.log(response.headers);
       resp({'header': response.headers, 'body': body});
     }
   }
@@ -91,9 +87,8 @@ exports.run_main = function (method, url_s, file, result){
             }
           }
 
-          exports.run(get_options, 200, url_s, function(res){
-            //Doing this to combat the async nature of node.js 
-            result({'header': res.header, 'body': res.body});
+          exports.run(options_delete, 200, url_s, function(res){
+            result({'header': "", 'body': ""});
           });
 
         }
@@ -164,7 +159,7 @@ exports.run_main = function (method, url_s, file, result){
  * a lot more parameter so it will be easier 
  * to create another function to do it 
  */
-exports.run_main_put = function (url_s, file, type, result){
+exports.run_main_put = function (url_s, file, type, metadata, result){
     function callback(error, response, body) {
       if (!error && response.statusCode == 200) {
         console.log("You are authenticated");
@@ -185,6 +180,12 @@ exports.run_main_put = function (url_s, file, type, result){
             "Content-Type": type
           }
         }
+
+        for(var key in metadata){
+          options_put.headers[key] = metadata[key]; 
+        }
+        console.log(options_put);
+
         fs.createReadStream(file).pipe(request.put(options_put, function(err, response, body) {
             console.log("---------------------------------------------------------");
             console.log("\nSending a PUT Request\n");
